@@ -21,13 +21,13 @@ public class AirHockeyController {
 
     @OnConnect
     public void onConnect(SocketIOClient client) {
-        log.info("Socket ID[{}] Connected to socket", client.getSessionId().toString());
-        // TODO: create GameSession
+        log.info("Client[{}] Connected to server", client.getSessionId().toString());
+        // TODO: create GameSession, start game
     }
 
     @OnDisconnect
     public void onDisconnect(SocketIOClient client) {
-        log.info("Client[{}] - Disconnected from socket", client.getSessionId().toString());
+        log.info("Client[{}] - Disconnected from server", client.getSessionId().toString());
         // TODO: call method from gameService.removePlayer(client.getSessionId());
     }
 
