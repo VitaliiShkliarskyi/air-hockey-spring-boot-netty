@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Player {
-    private String login;
+    private String id;
     private double x;
     private double y;
     private double velocityX;
