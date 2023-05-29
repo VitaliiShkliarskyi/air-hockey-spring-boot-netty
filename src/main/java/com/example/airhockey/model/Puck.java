@@ -1,20 +1,19 @@
 package com.example.airhockey.model;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 public class Puck {
+    private final double radius;
     private double x;
     private double y;
     private double velocityX;
     private double velocityY;
 
     public Puck() {
-        this.x = 0;
-        this.y = 0;
+        this.radius = 2;
+        this.x = 25;
+        this.y = 12.5;
         this.velocityX = 0;
         this.velocityY = 0;
     }
