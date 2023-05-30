@@ -5,6 +5,7 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.example.airhockey.model.GameSession;
+import com.example.airhockey.model.GameStatus;
 import com.example.airhockey.model.Player;
 import com.example.airhockey.model.Position;
 import com.example.airhockey.model.Table;
@@ -17,15 +18,12 @@ import org.springframework.stereotype.Component;
 public class SocketModule {
     private final SocketIOServer server;
     private final GameServiceImpl gameService;
-    private final WebSocketSender webSocketSender;
 
     private final Table table = new Table();
 
-    public SocketModule(SocketIOServer server, GameServiceImpl gameService,
-                        WebSocketSender webSocketSender) {
+    public SocketModule(SocketIOServer server, GameServiceImpl gameService) {
         this.server = server;
         this.gameService = gameService;
-        this.webSocketSender = webSocketSender;
         server.addConnectListener(onConnected());
         server.addDisconnectListener(onDisconnected());
         server.addEventListener("start_game", GameSession.class, onGameStarted());
@@ -62,12 +60,14 @@ public class SocketModule {
 
     private DataListener<Position> onPlayerMoved() {
         return (client, data, ackSender) -> {
-            gameService.updatePlayerPosition(data, client.getSessionId().toString());
-            server.getBroadcastOperations().sendEvent("puck_moved", gameService.getGameSession());
-            gameService.checkCollisionWithPuck(client.getSessionId().toString());
-            server.getBroadcastOperations().sendEvent("puck_moved", gameService.getGameSession());
-            gameService.checkCollisionWithWall(client.getSessionId().toString());
-            server.getBroadcastOperations().sendEvent("puck_moved", gameService.getGameSession());
+            if (gameService.getGameSession().getStatus() == GameStatus.IN_PROCESS) {
+                gameService.updatePlayerPosition(data, client.getSessionId().toString());
+                server.getBroadcastOperations().sendEvent("puck_moved", gameService.getGameSession());
+                gameService.checkCollisionWithPuck(client.getSessionId().toString());
+                server.getBroadcastOperations().sendEvent("puck_moved", gameService.getGameSession());
+                gameService.checkCollisionWithWall(client.getSessionId().toString());
+                server.getBroadcastOperations().sendEvent("puck_moved", gameService.getGameSession());
+            }
         };
     }
 }
