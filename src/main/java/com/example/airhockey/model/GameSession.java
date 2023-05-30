@@ -8,4 +8,9 @@ public class GameSession {
     private Player secondPlayer;
     private Puck puck;
     private GameStatus status;
+
+    public GameSession() {
+        puck = new Puck();
+        status = GameStatus.NEW;
+    }
 }

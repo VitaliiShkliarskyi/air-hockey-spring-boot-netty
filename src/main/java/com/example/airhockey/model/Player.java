@@ -6,8 +6,7 @@ import lombok.Data;
 public class Player {
     private String id;
     private final double radius;
-    private double x;
-    private double y;
+    private Position position;
     private double velocityX;
     private double velocityY;
     private short score;
