@@ -26,7 +26,7 @@ public class SocketModule {
         this.gameService = gameService;
         server.addConnectListener(onConnected());
         server.addDisconnectListener(onDisconnected());
-        server.addEventListener("start_game", GameSession.class, onGameStarted());
+        server.addEventListener("start_game", Object.class, onGameStarted());
         server.addEventListener("move_player", Position.class, onPlayerMoved());
     }
 
@@ -50,7 +50,7 @@ public class SocketModule {
 
     }
 
-    private DataListener<GameSession> onGameStarted() {
+    private DataListener<Object> onGameStarted() {
         return (client, data, ackSender) -> {
             gameService.startGame();
             server.getBroadcastOperations().sendEvent("game_started", table);
