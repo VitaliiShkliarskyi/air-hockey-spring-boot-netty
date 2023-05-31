@@ -2,6 +2,7 @@ package com.example.airhockey.service;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import com.example.airhockey.dto.MoveDto;
 import com.example.airhockey.model.GameSession;
 import com.example.airhockey.model.GameStatus;
 import com.example.airhockey.model.Player;
@@ -68,7 +69,7 @@ public class GameServiceImpl implements GameService {
         startTimer();
     }
 
-    public synchronized void updatePlayerPosition(Position data, String playerId) {
+    public synchronized void updatePlayerPosition(MoveDto data, String playerId) {
         Player player = getPlayerById(playerId);
         if (player != null) {
             player.setPosition(new Position(data.getX(), data.getY()));
