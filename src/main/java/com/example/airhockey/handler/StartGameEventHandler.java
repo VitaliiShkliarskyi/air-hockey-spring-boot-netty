@@ -29,7 +29,8 @@ public class StartGameEventHandler implements EventHandler<StartGameDto> {
     public void onEvent(SocketIOClient client, String event, StartGameDto moveDto) {
         gameService.startGame();
         server.getBroadcastOperations().sendEvent(OutboundEvent.GAME_STARTED.getName(), table);
-        log.info("Player {} started the game", client.getSessionId().toString());
+        log.info("Player {} started the game with message {}",
+                client.getSessionId().toString(), moveDto.getMessage());
     }
 
     @Override

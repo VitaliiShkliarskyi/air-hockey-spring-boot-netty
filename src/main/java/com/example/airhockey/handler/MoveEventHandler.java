@@ -30,6 +30,7 @@ public class MoveEventHandler implements EventHandler<MoveDto> {
     public void onEvent(SocketIOClient client, String event, MoveDto data) {
         if (gameService.getGameSession().getStatus() == GameStatus.IN_PROCESS) {
             gameEngine.updatePlayerPosition(data, client.getSessionId().toString());
+            log.info("Player {} changed position on {}", client.getSessionId().toString(), data.toString());
             server.getBroadcastOperations().sendEvent(OutboundEvent.STATE_UPDATED.toString(), gameService.getGameSession());
             gameEngine.checkCollisionWithPuck(client.getSessionId().toString());
             server.getBroadcastOperations().sendEvent(OutboundEvent.STATE_UPDATED.toString(), gameService.getGameSession());
