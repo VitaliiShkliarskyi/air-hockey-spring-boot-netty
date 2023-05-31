@@ -1,27 +1,24 @@
-package com.example.airhockey.service;
+package com.example.airhockey.service.impl;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import com.example.airhockey.dto.MoveDto;
 import com.example.airhockey.model.GameSession;
 import com.example.airhockey.model.GameStatus;
 import com.example.airhockey.model.Player;
 import com.example.airhockey.model.Position;
-import com.example.airhockey.model.Puck;
-import com.example.airhockey.model.Table;
+import com.example.airhockey.service.GameService;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 
-@Log4j2
 @Service
 @Getter
+@Setter
 public class GameServiceImpl implements GameService {
     private static final int GAME_TIME_IN_NANOS = 300000;
     private GameSession gameSession;
     private Timer timer;
     private TimerTask timerTask;
-    private final Table table = new Table();
 
     public synchronized GameSession addPlayerToTable(Player player) {
         if (gameSession == null) {
@@ -32,6 +29,8 @@ public class GameServiceImpl implements GameService {
             gameSession.setFirstPlayer(player);
             if (gameSession.getSecondPlayer() == null) {
                 gameSession.setStatus(GameStatus.NEW);
+            } else {
+                gameSession.setStatus(GameStatus.READY);
             }
         } else if (gameSession.getSecondPlayer() == null) {
             player.setPosition(new Position(21, 6.25));
@@ -67,67 +66,6 @@ public class GameServiceImpl implements GameService {
             default -> gameSession.setStatus(GameStatus.IN_PROCESS);
         }
         startTimer();
-    }
-
-    public synchronized void updatePlayerPosition(MoveDto data, String playerId) {
-        Player player = getPlayerById(playerId);
-        if (player != null) {
-            player.setPosition(new Position(data.getX(), data.getY()));
-        }
-        updateGameSession(player);
-    }
-
-    public synchronized void checkCollisionWithPuck(String playerId) {
-        Player player = getPlayerById(playerId);
-        Position playerPosition = player.getPosition();
-        Puck puck = gameSession.getPuck();
-        Position puckPosition = puck.getPosition();
-        double distance = Math.sqrt(Math.pow(puckPosition.getX() - playerPosition.getX(), 2)
-                + Math.pow(puckPosition.getY() - playerPosition.getY(), 2));
-        // collision with the puck
-        if (distance <= player.getRadius() + puck.getRadius()) {
-            // TODO
-        }
-    }
-
-    public synchronized void checkCollisionWithWall(String playerId) {
-        Puck puck = gameSession.getPuck();
-        Position puckPosition = puck.getPosition();
-        double puckPositionX = puckPosition.getX();
-        double puckPositionY = puckPosition.getY();
-        // collision with right or left wall
-        if (puckPositionX - puck.getRadius() < 0 || puckPositionX + puck.getRadius() > table.getHeight()) {
-            puck.setVelocityX(-puck.getVelocityX());
-        }
-        // collision with upper or lower wall
-        if (puckPositionY - puck.getRadius() < 0 || puckPositionY + puck.getRadius() > table.getWidth()) {
-            puck.setVelocityY(-puck.getVelocityY());
-        }
-        puckPosition.setX(puckPositionX + puck.getVelocityX());
-        puckPosition.setY(puckPositionY + puck.getVelocityY());
-        puck.setPosition(puckPosition);
-        gameSession.setPuck(puck);
-    }
-
-    private void updateGameSession(Player updatedPlayer) {
-        Player firstPlayer = gameSession.getFirstPlayer();
-        Player secondPlayer = gameSession.getSecondPlayer();
-        if (firstPlayer != null && firstPlayer.getId().equals(updatedPlayer.getId())) {
-            gameSession.setFirstPlayer(updatedPlayer);
-        } else if (secondPlayer != null && secondPlayer.getId().equals(updatedPlayer.getId())) {
-            gameSession.setSecondPlayer(updatedPlayer);
-        }
-    }
-
-    private Player getPlayerById(String playerId) {
-        Player firstPlayer = gameSession.getFirstPlayer();
-        Player secondPlayer = gameSession.getSecondPlayer();
-        if (firstPlayer != null && firstPlayer.getId().equals(playerId)) {
-            return firstPlayer;
-        } else if (secondPlayer != null && secondPlayer.getId().equals(playerId)) {
-            return secondPlayer;
-        }
-        return null;
     }
 
     private void createGameSession() {
